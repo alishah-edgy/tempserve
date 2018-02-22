@@ -1,0 +1,17 @@
+directories:
+  output: dist
+  buildResources: build
+appId: 3E6C83R45D.com.edgylabs.stack-tools-write
+mac:
+  category: public.app-category.productivity
+  target: zip
+linux:
+  category: Development
+files:
+  - app/**/*
+  - node_modules/**/*
+  - package.json
+publish:
+  provider: s3
+  bucket: stack-tools-write
+electronVersion: 1.7.10
