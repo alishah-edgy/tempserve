@@ -1,0 +1,11 @@
+{
+  "id": "publishing-plugin",
+  "name": "Publishing Plugin",
+  "thumbnail": "thumbnail.png",
+  "version": "0.0.1",
+  "main": "index.js",
+  "html": {
+	"username" : "input",
+	"password" : "input"
+  }
+}
