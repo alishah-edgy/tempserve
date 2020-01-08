@@ -4,14 +4,12 @@
   "thumbnail": "thumbnail.png",
   "version": "0.0.1",
   "main": "index.js",
-  "html": {
-	  [
-		{"name": "username", "type": "input"},
-		{"name": "password", "type": "input"},
-		{"name": "firstname", "type": "input"},
-		{"name": "lastname", "type": "input"},
-		{"name": "address", "type": "input"},
-		{"name": "contactnumber", "type": "input"}
-	  ]
-  }
+  "html": [
+	{"name": "username", "type": "input"},
+	{"name": "password", "type": "input"},
+	{"name": "firstname", "type": "input"},
+	{"name": "lastname", "type": "input"},
+	{"name": "address", "type": "input"},
+	{"name": "contactnumber", "type": "input"}
+  ]
 }
