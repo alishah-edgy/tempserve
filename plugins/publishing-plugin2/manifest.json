@@ -11,7 +11,7 @@
 		{"name": "firstname", "type": "input"},
 		{"name": "lastname", "type": "input"},
 		{"name": "address", "type": "input"},
-		{"name": "contactnumber", "type": "input"},
+		{"name": "contactnumber", "type": "input"}
 	  ]
   }
 }
