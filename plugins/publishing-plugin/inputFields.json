@@ -1,0 +1,31 @@
+{
+  "html": [
+    {
+      "name": "username",
+      "type": "input"
+    },
+    {
+      "name": "password",
+      "type": "input"
+    },
+    {
+      "name": "savefuture",
+      "type": "checkbox"
+    },
+    {
+      "name": "typeofuser",
+      "type": "dropDown",
+      "value": [
+        "new",
+        "old",
+        "semi-new",
+        "semi-old",
+        "genormous"
+      ]
+    },
+    {
+      "name": "dummybtn",
+      "type": "btn"
+    }
+  ]
+}

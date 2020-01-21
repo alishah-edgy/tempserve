@@ -1,14 +1,7 @@
 {
-  "id": "publishing-plugin",
+  "id": "publishing-plugin-1",
   "name": "Publishing Plugin",
   "thumbnail": "thumbnail.png",
   "version": "0.0.1",
-  "main": "index.js",
-  "html": [
-	{"name": "username", "type": "input"},
-	{"name": "password", "type": "input"},
-	{"name": "savefuture", "type": "checkbox"},
-	{"name": "typeofuser", "type": "dropDown", "value": ["new", "old", "semi-new", "semi-old", "genormous"]},
-	{"name": "dummybtn", "type": "btn"}
-  ]
+  "main": "index.js"
 }

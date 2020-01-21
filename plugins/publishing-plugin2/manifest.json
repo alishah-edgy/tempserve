@@ -1,15 +1,7 @@
 {
-  "id": "publishing-plugin",
+  "id": "publishing-plugin-2",
   "name": "Publishing Plugin",
   "thumbnail": "thumbnail.png",
   "version": "0.0.1",
-  "main": "index.js",
-  "html": [
-	{"name": "username", "type": "input"},
-	{"name": "password", "type": "input"},
-	{"name": "firstname", "type": "input"},
-	{"name": "lastname", "type": "input"},
-	{"name": "address", "type": "input"},
-	{"name": "contactnumber", "type": "input"}
-  ]
+  "main": "index.js"
 }
