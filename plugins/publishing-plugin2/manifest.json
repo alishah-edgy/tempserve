@@ -1,6 +1,6 @@
 {
-  "id": "publishing-plugin-2",
-  "name": "Publishing Plugin",
+  "id": "wordpress-plugin",
+  "name": "Wordpress",
   "thumbnail": "thumbnail.png",
   "version": "0.0.1",
   "main": "index.js"
