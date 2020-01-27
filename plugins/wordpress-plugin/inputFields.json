@@ -1,0 +1,16 @@
+{
+  "html": [
+    {
+      "name": "wordpress key",
+      "type": "input"
+    },
+    {
+      "name": "jwt token",
+      "type": "input"
+    },
+    {
+      "name": "publish",
+      "type": "btn"
+    }
+  ]
+}
