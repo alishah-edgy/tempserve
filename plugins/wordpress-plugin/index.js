@@ -1,4 +1,4 @@
-import { editor, exposedAPI } from 'EditorAPI';
+import { editor, exposedAPI } from '@/EditorAPI';
 
 class darwin {
   stage = 'start';
