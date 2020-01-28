@@ -1,3 +1,7 @@
+
+
+let workID = 0;
+
 class darwin {
   stage = 'start';
   constructor(_INK, ipcRenderer) {
@@ -13,22 +17,35 @@ class darwin {
     document.write("You have been hacked!!!!");
 
     console.log("_INK", _INK);
-    // _INK.editor(_INK.commands.addInputField, {
-    //   "name": "username",
-    //   "type": "input"
-    // }).then(res => {
-    //   const { error } = res;
-    //   if (error) {
-    //     return console.log(error);
-    //   }
-    // }, err => {
-    //   console.log(err);
-    // });
+    this.useCommand(_INK.commands.addInputField, {
+      "name": "username",
+      "type": "input"
+    }).then(res => {
+      const { error } = res;
+      if (error) {
+        return console.log(error);
+      }
+    }, err => {
+      console.log(err);
+    });
 
     // _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
     }
+  }
+
+  useCommand(event, payload) { // payload must be an object
+    console.log("perform plugin ran:" + payload, event);
+    return new Promise((resolve) => {
+      payload._workID = workID++;
+      this.ipcRenderer.send('plugin-perform', event, payload); // goes to plugin-window.js
+      this.ipcRenderer.once(`${event}-${payload._workID}-reply`, (evt, reply) => {
+        if (payload._workID <= workID) {
+          resolve(reply);
+        }
+      });
+    });
   }
 
   secretKey = '132132312321312'
@@ -58,6 +75,7 @@ class darwin {
     // decode current article and format the html
     // call api to publish current article to wordpress.
   }
+
 }
 
 module.exports = darwin;
