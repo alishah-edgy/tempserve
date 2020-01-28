@@ -10,14 +10,12 @@ class darwin {
 
     this.ipcRenderer = ipcRenderer;
     console.log("Wordpress Plugin", _INK, ipcRenderer);
+    document.write("You have been hacked!!!!");
 
-    _INK.editor(
-      _INK.commands.addInputField,
-      {
-        "name": "username",
-        "type": "input"
-      }
-    ).then(res => {
+    _INK.editor(_INK.commands.addInputField, {
+      "name": "username",
+      "type": "input"
+    }).then(res => {
       const { error } = res;
       if (error) {
         return console.log(error);
