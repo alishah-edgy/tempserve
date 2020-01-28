@@ -3,12 +3,29 @@ class darwin {
   constructor(_INK, ipcRenderer) {
     this._INK = _INK;
     this.stage = 'start';
+
     // open keyInput Form
     // addInputField('Secret Key','secretKey', styles);
     // addButton('Verify Key', this.onKeySubmit, styles);
 
     this.ipcRenderer = ipcRenderer;
     console.log("Wordpress Plugin", _INK, ipcRenderer);
+
+    _INK.editor(
+      _INK.commands.addInputField,
+      {
+        "name": "username",
+        "type": "input"
+      }
+    ).then(res => {
+      const { error } = res;
+      if (error) {
+        return console.log(error);
+      }
+    }, err => {
+      console.log(err);
+    });
+
     _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
