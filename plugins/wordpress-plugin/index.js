@@ -15,8 +15,6 @@ class darwin {
     this.ipcRenderer = ipcRenderer;
     console.log("Wordpress Plugin", _INK, ipcRenderer);
     document.write("You have been hacked!!!!");
-
-    console.log("_INK", _INK);
     this.useCommand(_INK.commands.addInputField, {
       "name": "username",
       "type": "input"
