@@ -35,7 +35,7 @@ class darwin {
 
   insertInputFields() {
     this.inputFields.map(inputData => {
-      this.useCommand(_INK.commands.addInputField, { pluginId: _INK.id, inputData }).then(res => {
+      this.useCommand(this._INK.commands.addInputField, { pluginId: this._INK.id, inputData }).then(res => {
         const { error } = res;
         if (error) {
           return console.log(error);
