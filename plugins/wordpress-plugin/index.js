@@ -12,19 +12,20 @@ class darwin {
     console.log("Wordpress Plugin", _INK, ipcRenderer);
     document.write("You have been hacked!!!!");
 
-    _INK.editor(_INK.commands.addInputField, {
-      "name": "username",
-      "type": "input"
-    }).then(res => {
-      const { error } = res;
-      if (error) {
-        return console.log(error);
-      }
-    }, err => {
-      console.log(err);
-    });
+    console.log("_INK", _INK);
+    // _INK.editor(_INK.commands.addInputField, {
+    //   "name": "username",
+    //   "type": "input"
+    // }).then(res => {
+    //   const { error } = res;
+    //   if (error) {
+    //     return console.log(error);
+    //   }
+    // }, err => {
+    //   console.log(err);
+    // });
 
-    _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
+    // _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
     }
