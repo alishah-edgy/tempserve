@@ -6,6 +6,7 @@ class darwin {
   stage = 'start';
   constructor(_INK, ipcRenderer) {
     this._INK = _INK;
+    this.ipcRenderer = ipcRenderer;
     this.stage = 'start';
     this.inputFields = [
       {
@@ -25,8 +26,7 @@ class darwin {
     // open keyInput Form
     // addInputField('Secret Key','secretKey', styles);
     // addButton('Verify Key', this.onKeySubmit, styles);
-    this.ipcRenderer = ipcRenderer;
-    console.log("Wordpress Plugin", _INK, ipcRenderer);
+    console.log("Wordpress Plugin", this._INK, this.ipcRenderer);
     // _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
