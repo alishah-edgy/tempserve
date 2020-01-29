@@ -8,6 +8,7 @@ class darwin {
     this._INK = _INK;
     this.ipcRenderer = ipcRenderer;
     this.stage = 'start';
+    console.log(_INK)
     this.inputFields = [
       {
         name: "wordpress key",
@@ -45,7 +46,6 @@ class darwin {
       })
     });
   }
-
   useCommand(event, payload) { // payload must be an object
     return new Promise((resolve) => {
       payload._workID = workID++;
