@@ -1,14 +1,12 @@
 
 
-let workID = 0;
-
 class darwin {
   stage = 'start';
-  constructor(_INK, ipcRenderer) {
-    this._INK = _INK;
-    this.ipcRenderer = ipcRenderer;
+  constructor({ performTask, draw, id }) {
+    this.id = id;
+    this.draw = draw;
+
     this.stage = 'start';
-    console.log(_INK)
     this.inputFields = [
       {
         name: "wordpress key",
@@ -23,38 +21,18 @@ class darwin {
         type: "btn"
       },
     ];
-    this.insertInputFields();
-    // open keyInput Form
-    // addInputField('Secret Key','secretKey', styles);
-    // addButton('Verify Key', this.onKeySubmit, styles);
-    console.log("Wordpress Plugin", this._INK, this.ipcRenderer);
-    // _INK["menu-item"]({ icon: "abc", name: "Test Plugin", classId: 'darwin-menu-icon' });
+
+    this.insertFormElements();
+    console.log("Wordpress Plugin");
+
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
-    }
+    };
   }
 
-  insertInputFields() {
+  insertFormElements() {
     this.inputFields.map(inputData => {
-      this.useCommand(this._INK.commands.addInputField, { pluginId: this._INK.id, inputData }).then(res => {
-        const { error } = res;
-        if (error) {
-          return console.log(error);
-        }
-      }, err => {
-        console.log(err);
-      })
-    });
-  }
-  useCommand(event, payload) { // payload must be an object
-    return new Promise((resolve) => {
-      payload._workID = workID++;
-      this.ipcRenderer.send('plugin-perform', event, payload); // goes to plugin-window.js
-      this.ipcRenderer.once(`${event}-${payload._workID}-reply`, (evt, reply) => {
-        if (payload._workID <= workID) {
-          resolve(reply);
-        }
-      });
+      this.draw.addFormElement({ id: this.id, inputData });
     });
   }
 
@@ -62,9 +40,9 @@ class darwin {
 
   onKeySubmit = (key) => {
     // validate key and fetch token
-    this.token = '4234sdsad324324324324234sf2rewd2d2'
+    this.token = '4234sdsad324324324324234;sf2rewd2d2';
     // clear all fields
-    // addInputField('Website Domain','websiteDomain', styles);
+    // addFormElement('Website Domain','websiteDomain', styles);
     // addButton('Fetch Domain Data',this.onDomainSubmission, styles);
 
   }
@@ -73,10 +51,10 @@ class darwin {
     // getWebsiteData
 
     // addDropdown('Select Publication', 'publication', allPublicationsArray, styles)
-    // addInputField('Post Title', 'title', styles);
+    // addFormElement('Post Title', 'title', styles);
     // addDropdown('Comment Status', 'comment_status', ['open', 'closed'], styles)
     // addDropdown('Ping Status', 'ping_status', ['open', 'closed'], styles)
-    // addInputField('Add tags', 'tags', styles)
+    // addFormElement('Add tags', 'tags', styles)
     // addButton('Publish', this.onPublish, styles);
 
   }

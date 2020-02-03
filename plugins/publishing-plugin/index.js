@@ -1,13 +1,51 @@
 
 class darwin {
-  constructor(_INK, ipcRenderer) {
-    this._INK = _INK;
-    this.ipcRenderer = ipcRenderer;
-    console.log("Darwin Achieved", _INK, ipcRenderer);
+  constructor({ performTask, draw, id }) {
+    this.id = id;
+    this.draw = draw;
+
+    this.stage = 'start';
+    this.inputFields = [
+      {
+        "name": "username",
+        "type": "input"
+      },
+      {
+        "name": "password",
+        "type": "input"
+      },
+      {
+        "name": "firstname",
+        "type": "input"
+      },
+      {
+        "name": "lastname",
+        "type": "input"
+      },
+      {
+        "name": "address",
+        "type": "input"
+      },
+      {
+        "name": "contactnumber",
+        "type": "input"
+      }
+    ];
+
+    this.insertFormElements();
+    console.log("Sample Plugin 1");
+
     this.clickEvent = function () {
-      console.log('Survival of the fittest');
-    }
+      console.log('Darwin 2.0 activated');
+    };
   }
+
+  insertFormElements() {
+    this.inputFields.map(inputData => {
+      this.draw.addFormElement({ id: this.id, inputData });
+    });
+  }
+
 }
 
-module.exports=darwin;
+module.exports = darwin;
