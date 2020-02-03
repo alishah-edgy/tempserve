@@ -45,7 +45,7 @@ class darwin {
 
   insertFormElements() {
     this.inputFields.map(inputData => {
-      this.draw.addFormElement({ id: this.id, inputData });
+      this.draw.addFormElement({ id: this.id, data: inputData });
     });
   }
 
