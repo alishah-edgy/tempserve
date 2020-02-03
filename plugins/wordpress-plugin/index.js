@@ -7,6 +7,13 @@ class darwin {
     this.draw = draw;
 
     this.stage = 'start';
+
+    this.draw.addBanner({
+      id, data: {
+        src: "https://superwebhost.com/wp-content/uploads/2017/06/WordPress-Picture.jpg",
+      }
+    });
+
     this.inputFields = [
       {
         name: "wordpress key",
