@@ -30,7 +30,7 @@ class darwin {
         ]
       },
       {
-        "name": "dummybtn",
+        "name": "Submit",
         "type": "btn"
       }
     ];

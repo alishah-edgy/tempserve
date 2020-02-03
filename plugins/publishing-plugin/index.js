@@ -29,6 +29,10 @@ class darwin {
       {
         "name": "contactnumber",
         "type": "input"
+      },
+      {
+        "name": "Submit",
+        "type": "btn"
       }
     ];
 
