@@ -2,16 +2,15 @@
 
 class darwin {
   stage = 'start';
-  constructor({ performTask, draw, id }) {
+  constructor({ core, draw, id }) {
     this.id = id;
     this.draw = draw;
+    this.core = core;
 
     this.stage = 'start';
 
     this.draw.addBanner({
-      id, data: {
-        src: "https://superwebhost.com/wp-content/uploads/2017/06/WordPress-Picture.jpg",
-      }
+      src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
     });
 
     this.inputFields = [
@@ -20,12 +19,8 @@ class darwin {
         type: "input"
       },
       {
-        name: "jwt token",
-        type: "input"
-      },
-      {
-        name: "publish",
-        type: "btn"
+        name: "Add",
+        type: "btn",
       },
     ];
 
@@ -35,11 +30,17 @@ class darwin {
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
     };
+
+    // this.draw.addHorizontalDivider();
+
+    // this.draw.addLabel({
+    //   text: "Current Configs",
+    // });
   }
 
   insertFormElements() {
     this.inputFields.map(inputData => {
-      this.draw.addFormElement({ id: this.id, data: inputData });
+      this.draw.addFormElement({ inputData });
     });
   }
 

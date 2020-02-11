@@ -1,6 +1,6 @@
 
 class darwin {
-  constructor({ performTask, draw, id }) {
+  constructor({ core, draw, id }) {
     this.id = id;
     this.draw = draw;
 
@@ -46,7 +46,7 @@ class darwin {
 
   insertFormElements() {
     this.inputFields.map(inputData => {
-      this.draw.addFormElement({ id: this.id, data: inputData });
+      this.draw.addFormElement(inputData);
     });
   }
 

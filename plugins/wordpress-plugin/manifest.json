@@ -1,7 +1,7 @@
 {
-  "id": "wordpress-plugin2",
-  "name": "Wordpress 2",
+  "id": "wordpress-plugin",
+  "name": "Wordpress",
   "thumbnail": "thumbnail.png",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "main": "index.js"
 }
