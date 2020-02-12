@@ -3,7 +3,7 @@ class darwin {
   constructor({ core, draw, id }) {
     this.id = id;
     this.draw = draw;
-
+    this.core = core;
     this.stage = 'start';
     this.inputFields = [
       {
@@ -34,13 +34,15 @@ class darwin {
         "type": "btn"
       }
     ];
-
-    this.insertFormElements();
-    console.log("Sample Plugin 2");
-
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
     };
+    this.init = this.init.bind(this);
+  }
+
+  init() {
+    this.insertFormElements();
+    console.log("Sample Plugin 2");
   }
 
   insertFormElements() {

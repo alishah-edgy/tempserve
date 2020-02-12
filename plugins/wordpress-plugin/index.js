@@ -1,18 +1,14 @@
 
 
 class darwin {
+
   stage = 'start';
+
   constructor({ core, draw, id }) {
     this.id = id;
     this.draw = draw;
     this.core = core;
-
     this.stage = 'start';
-
-    this.draw.addBanner({
-      src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
-    });
-
     this.inputFields = [
       {
         name: "wordpress key",
@@ -24,6 +20,13 @@ class darwin {
       },
     ];
 
+    this.init = this.init.bind(this);
+  }
+
+  init() {
+    this.draw.addBanner({
+      src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
+    });
     this.insertFormElements();
     console.log("Wordpress Plugin");
 
@@ -31,6 +34,15 @@ class darwin {
       console.log('Darwin 2.0 activated');
     };
 
+    setTimeout(() => {
+      this.draw.clear();
+      setTimeout(() => {
+        this.draw.addBanner({
+          src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
+        });
+        this.insertFormElements();
+      }, 3000);
+    }, 3000);
     // this.draw.addHorizontalDivider();
 
     // this.draw.addLabel({
@@ -40,7 +52,7 @@ class darwin {
 
   insertFormElements() {
     this.inputFields.map(inputData => {
-      this.draw.addFormElement({ inputData });
+      this.draw.addFormElement(inputData);
     });
   }
 
