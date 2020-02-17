@@ -9,51 +9,59 @@ class darwin {
     this.draw = draw;
     this.core = core;
     this.stage = 'start';
-    this.inputFields = [
-      {
-        name: "wordpress key",
-        type: "input"
-      },
-      {
-        name: "Add",
-        type: "btn",
-      },
-    ];
-
     this.init = this.init.bind(this);
+    this.sendKeyHandler = this.sendKeyHandler.bind(this);
+    this.submit = this.submit.bind(this);
   }
 
   init() {
-    this.draw.addBanner({
-      src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
-    });
-    this.insertFormElements();
+    const { addBanner, addFormElement, addEmptyState, addHorizontalDivider } = this.draw;
+    const { notify, getClipboardText, setClipboardText, getLocalStore, setLocalStore } = this.core;
     console.log("Wordpress Plugin");
+    getLocalStore().then(formData => {
+      addBanner({
+        src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
+      });
+
+      addFormElement({
+        name: "wordpress key",
+        defaultValue: formData["wordpress key"],
+        type: "input",
+      });
+
+      addFormElement({
+        name: "Add",
+        type: "btn",
+      });
+
+      addHorizontalDivider();
+
+      addEmptyState({
+        text: "No Configs Available",
+      });
+    });
 
     this.clickEvent = function () {
       console.log('Darwin 2.0 activated');
     };
+  }
+
+  sendKeyHandler(data) {
+    console.log(data);
+
+    this.draw.clear();
+    this.draw.addLoader();
 
     setTimeout(() => {
       this.draw.clear();
-      setTimeout(() => {
-        this.draw.addBanner({
-          src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
-        });
-        this.insertFormElements();
-      }, 3000);
+      this.init();
     }, 3000);
-    // this.draw.addHorizontalDivider();
 
-    // this.draw.addLabel({
-    //   text: "Current Configs",
-    // });
   }
 
-  insertFormElements() {
-    this.inputFields.map(inputData => {
-      this.draw.addFormElement(inputData);
-    });
+  submit(data) {
+    console.log(data);
+    this.core.setLocalStore(data);
   }
 
   secretKey = '132132312321312'
@@ -83,7 +91,6 @@ class darwin {
     // decode current article and format the html
     // call api to publish current article to wordpress.
   }
-
 }
 
 module.exports = darwin;

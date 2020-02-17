@@ -39,17 +39,27 @@ class darwin {
       console.log('Darwin 2.0 activated');
     };
     this.init = this.init.bind(this);
+    this.submit = this.submit.bind(this);
   }
 
   init() {
-    this.insertFormElements();
+    const { getLocalStore } = this.core;
+    getLocalStore().then(formData => {
+      this.insertFormElements(formData);
+    })
     console.log("Sample Plugin 1");
   }
 
-  insertFormElements() {
+  insertFormElements(formData) {
     this.inputFields.map(inputData => {
+      inputData.defaultValue = formData[inputData.name];
       this.draw.addFormElement(inputData);
     });
+  }
+
+  submit(data) {
+    console.log(data);
+    this.core.setLocalStore(data);
   }
 
 }
