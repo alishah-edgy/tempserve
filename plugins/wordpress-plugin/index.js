@@ -18,7 +18,7 @@ class darwin {
     const { addBanner, addFormElement, addEmptyState, addHorizontalDivider } = this.draw;
     const { notify, getClipboardText, setClipboardText, getLocalStore, setLocalStore } = this.core;
     console.log("Wordpress Plugin");
-    getLocalStore().then(formData => {
+    getLocalStore().then((formData = {}) => {
       addBanner({
         src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
       });

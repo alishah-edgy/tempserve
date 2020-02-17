@@ -44,7 +44,7 @@ class darwin {
 
   init() {
     const { getLocalStore } = this.core;
-    getLocalStore().then(formData => {
+    getLocalStore().then((formData = {}) => {
       this.insertFormElements(formData);
     })
     console.log("Sample Plugin 1");
