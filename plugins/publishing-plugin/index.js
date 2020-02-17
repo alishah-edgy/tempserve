@@ -44,7 +44,7 @@ class darwin {
 
   init() {
     const { getLocalStore } = this.core;
-    getLocalStore().then((formData = {}) => {
+    getLocalStore().then((formData) => {
       this.insertFormElements(formData);
     })
     console.log("Sample Plugin 1");
@@ -52,7 +52,7 @@ class darwin {
 
   insertFormElements(formData) {
     this.inputFields.map(inputData => {
-      inputData.defaultValue = formData[inputData.name];
+      formData && (inputData.defaultValue = formData[inputData.name]);
       this.draw.addFormElement(inputData);
     });
   }

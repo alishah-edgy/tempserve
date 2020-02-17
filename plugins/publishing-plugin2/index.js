@@ -51,7 +51,7 @@ class darwin {
 
   insertFormElements(formData) {
     this.inputFields.map(inputData => {
-      inputData.defaultValue = formData[inputData.name];
+      formData && (inputData.defaultValue = formData[inputData.name]);
       this.draw.addFormElement(inputData);
     });
   }

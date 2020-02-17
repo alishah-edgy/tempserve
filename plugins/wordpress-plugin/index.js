@@ -25,7 +25,7 @@ class darwin {
 
       addFormElement({
         name: "wordpress key",
-        defaultValue: formData["wordpress key"],
+        defaultValue: formData ? formData["wordpress key"] : undefined,
         type: "input",
       });
 
@@ -61,7 +61,9 @@ class darwin {
 
   submit(data) {
     console.log(data);
-    this.core.setLocalStore(data);
+    this.core.setLocalStore(data).then(res => {
+      console.log(res);
+    });
   }
 
   secretKey = '132132312321312'
