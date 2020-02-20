@@ -21,7 +21,7 @@ class darwin {
       {
         "name": "typeofuser",
         "type": "dropDown",
-        "value": [
+        "options": [
           "new",
           "old",
           "semi-new",
