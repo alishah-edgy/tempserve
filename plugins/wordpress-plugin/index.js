@@ -15,17 +15,21 @@ class darwin {
   }
 
   init() {
-    const { addBanner, addFormElement, addEmptyState, addHorizontalDivider } = this.draw;
-    const { notify, getClipboardText, setClipboardText, getLocalStore, setLocalStore } = this.core;
+
+    const { addBanner, addFormElement, addLabel, addHorizontalDivider, addExpandableList } = this.draw;
+    const { getLocalStore } = this.core;
+
     console.log("Wordpress Plugin");
-    getLocalStore().then((formData = {}) => {
+    getLocalStore().then(formData => {
+
       addBanner({
         src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
       });
 
       addFormElement({
-        name: "wordpress key",
-        defaultValue: formData ? formData["wordpress key"] : undefined,
+        name: "wpkey",
+        placeholder: "wordpress key",
+        defaultValue: formData ? formData["wpkey"] : undefined,
         type: "input",
       });
 
@@ -36,9 +40,42 @@ class darwin {
 
       addHorizontalDivider();
 
-      addEmptyState({
-        text: "No Configs Available",
+      // addEmptyState({
+      //   text: "No Configs Available",
+      // });
+      addLabel({
+        text: "Save Configs",
+        styles: {
+          textAlign: 'center',
+          fontWeight: 'bold',
+        },
       });
+
+      addExpandableList({
+        title: "https://facebook.com",
+        fields: [
+          { label: "User:", value: "Jane Doe" },
+          { label: "Email:", value: "abc@xyz.com" },
+        ],
+        btn: "Publish Article",
+      });
+      addExpandableList({
+        title: "https://Google.com",
+        fields: [
+          { label: "User:", value: "Jane Doe" },
+          { label: "Email:", value: "abc@xyz.com" },
+        ],
+        btn: "Publish Article",
+      });
+      addExpandableList({
+        title: "https://yahoo.com/plug",
+        fields: [
+          { label: "User:", value: "Jane Doe" },
+          { label: "Email:", value: "abc@xyz.com" },
+        ],
+        btn: "Publish Article",
+      });
+
     });
 
     this.clickEvent = function () {
@@ -60,38 +97,31 @@ class darwin {
   }
 
   submit(data) {
-    console.log(data);
-    this.core.setLocalStore(data).then(res => {
-      console.log(res);
+    this.core.setLocalStore(data);
+    this.onKeySubmit(data.wpkey);
+  }
+
+  // Example POST method implementation:
+  async postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
     });
+    return await response.json();
   }
 
   secretKey = '132132312321312'
 
-  onKeySubmit = (key) => {
-    // validate key and fetch token
-    this.token = '4234sdsad324324324324234;sf2rewd2d2';
-    // clear all fields
-    // addFormElement('Website Domain','websiteDomain', styles);
-    // addButton('Fetch Domain Data',this.onDomainSubmission, styles);
-
-  }
-
-  onDomainSubmission = (domain, token) => {
-    // getWebsiteData
-
-    // addDropdown('Select Publication', 'publication', allPublicationsArray, styles)
-    // addFormElement('Post Title', 'title', styles);
-    // addDropdown('Comment Status', 'comment_status', ['open', 'closed'], styles)
-    // addDropdown('Ping Status', 'ping_status', ['open', 'closed'], styles)
-    // addFormElement('Add tags', 'tags', styles)
-    // addButton('Publish', this.onPublish, styles);
-
-  }
-
-  onPublish = () => {
-    // decode current article and format the html
-    // call api to publish current article to wordpress.
+  onKeySubmit = (key = '5e4d5c4ed7a3b') => {
+    key.trim() !== "" && this.postData(
+      `https://staging.inkforall.com/wp-json/ink-route/ink-check?key=${key}`,
+      {}
+    ).then((data) => {
+      console.log(data);
+    });
   }
 }
 
