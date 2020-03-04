@@ -1,0 +1,7 @@
+{
+  "id": "wordpress-plugin-com",
+  "name": "Wordpress.Com",
+  "thumbnail": "thumbnail.png",
+  "version": "0.0.1",
+  "main": "index.js"
+}
