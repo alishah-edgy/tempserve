@@ -13,7 +13,7 @@ class DemoPlugin {
     //This function will be called ones the plugin is integrated and ready!
     const
       {
-        addBanner, addButton, addFormElement, addEmptyState, addHorizontalDivider, addLabel, addLoader
+        addBanner, addButton, addFormElement, addEmptyState, addHorizontalDivider, addLabel, setLoading
       } = this.draw,
       {
         getLocalStore,
@@ -55,7 +55,7 @@ class DemoPlugin {
         }
       });
 
-      addLoader();
+      setLoading({ status: true });
     });
   }
 

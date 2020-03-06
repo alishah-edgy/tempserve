@@ -1,7 +1,0 @@
-{
-  "id": "publishing-plugin-1",
-  "name": "Publishing Plugin",
-  "thumbnail": "thumbnail.png",
-  "version": "0.0.1",
-  "main": "index.js"
-}

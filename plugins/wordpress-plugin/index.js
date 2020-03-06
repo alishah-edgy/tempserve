@@ -87,13 +87,13 @@ class darwin {
     console.log(data);
 
     this.draw.clear();
-    this.draw.addLoader();
+    this.draw.setLoading({ status: true });
 
     setTimeout(() => {
+      this.draw.setLoading({ status: false });
       this.draw.clear();
       this.init();
     }, 3000);
-
   }
 
   submit(data) {
