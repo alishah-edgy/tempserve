@@ -6,8 +6,9 @@ class darwin {
     this.id = id;
     this.draw = draw;
     this.core = core;
-    this.api = 'http://192.168.100.50:3001/api';
-    this.redirectCode = 8086;
+    this.apiUrl = 'http://192.168.100.50:3001/api/wordpress';
+    // this.apiUrl = 'https://ink-api-test.seo.app/api/wordpress';
+    this.redirectCode = 3047;
     this.bannerUrl = "./public/img/logo-wpcom.png";
     this.siteId = null;
     this.userSites = [];
@@ -90,6 +91,7 @@ class darwin {
                   title: URL,
                   btn: 'Post Article',
                   clickEvent: ID,
+                  group: 'grouped-sites',
                 });
                 this[ID] = () => {
                   this.siteId = ID;
@@ -119,50 +121,56 @@ class darwin {
       let htmlDoc = parser.parseFromString(html, 'text/xml');
       let imgSrc = [];
       let token = `Bearer ${this.accessToken}`;
-      let title = htmlDoc.title;
       let files = [];
+      let title = htmlDoc.title;
       let imgElements = htmlDoc.getElementsByTagName('img');
       let promises = [];
-
-      //removing first child that is "H1" node for title
-      htmlDoc.body.firstElementChild.remove();
-      if (imgElements.length > 0) {
-        for (let index = 0; index < imgElements.length; index++) {
-          const imgEle = imgElements[index];
-          let imgWidth = imgEle.style.width;
-          let imgSource = imgEle.src;
-          imgEle.width = imgWidth ? imgWidth.slice(0, imgWidth.length - 2) : 0; //fixing image width issue
-          imgSrc.push(imgSource); //collecting all the image sources
-          files.push(this.urlToFileBlob(imgSource, `wp-upload-${index}`));  //collecting all the file blobs
-        }
-
-        //creating formdata for multipart api request
-        const formData = new FormData();
-        formData.append('siteId', this.siteId);
-        formData.append('token', token);
-        files.forEach((file, i) => {
-          formData.append(`media`, file, `wp-test-${i}`);
-        });
-
-        //uploading media and retrieving their urls
-        promises.push(fetch(`http://192.168.100.50:3001/api/wordpress/upload-media`, {
-          method: 'POST',
-          body: formData,
-        }).then(res => res.json()).then(({ data }) => {
-
-          //parsing html and placing new image sources
+      if (title) {
+        //removing first child that is "H1" node for title
+        htmlDoc.body.firstElementChild.remove();
+        if (imgElements.length > 0) {
           for (let index = 0; index < imgElements.length; index++) {
             const imgEle = imgElements[index];
-            imgEle.src = data.media[index].URL;
+            let imgWidth = imgEle.style.width;
+            let imgSource = imgEle.src;
+            imgEle.width = imgWidth ? imgWidth.slice(0, imgWidth.length - 2) : 0; //fixing image width issue
+            imgSrc.push(imgSource); //collecting all the image sources
+            files.push(this.urlToFileBlob(imgSource, `wp-upload-${index}`));  //collecting all the file blobs
           }
-          return;
-        }));
-      }
 
-      //create post api request
-      if (title) {
+          //creating formdata for multipart api request
+          const formData = new FormData();
+          formData.append('siteId', this.siteId);
+          formData.append('token', token);
+          files.forEach((file, i) => {
+            formData.append(`media`, file, `wp-test-${i}`);
+          });
+
+          //uploading media and retrieving their urls
+          promises.push(fetch(`${this.apiUrl}/upload-media`, {
+            method: 'POST',
+            body: formData,
+          }).then(res => res.json()).then(({ data }) => {
+
+            //parsing html and placing new image sources
+            for (let index = 0; index < imgElements.length; index++) {
+              const imgEle = imgElements[index];
+              imgEle.src = data.media[index].URL;
+            }
+            return;
+          }, err => {
+            setLoading({ status: false });
+            this.core.notify({
+              title: "Wordpress.Com",
+              message: "Media Uploading Failed: " + err,
+              status: "error",
+            });
+          }));
+        }
+
+        //create post api request
         Promise.all(promises).then(() => {
-          fetch(`http://192.168.100.50:3001/api/wordpress/create-post`, {
+          fetch(`${this.apiUrl}/create-post`, {
             method: 'POST',
             body: JSON.stringify({
               title,
@@ -178,6 +186,19 @@ class darwin {
           }).then(res => res.json()).then((res) => {
             console.log(res);
             setLoading({ status: false });
+            this.displayMainView();
+            this.core.notify({
+              title: "Wordpress.Com",
+              message: "Post Created Successfully!",
+              status: "success",
+            });
+          }, err => {
+            setLoading({ status: false });
+            this.core.notify({
+              title: "Wordpress.Com",
+              message: "Post Creation Failed: " + err,
+              status: "error",
+            });
           });
         });
       } else {
@@ -193,53 +214,84 @@ class darwin {
 
   selectPostSite() {
     const {
-      addLabel, addHorizontalDivider, addUserProfileDisplay, clear, addBanner, addButton, addEmptyState
+      addLabel, labeledValue, addHorizontalDivider, addUserProfileDisplay, clear, addBanner, addButton, addEmptyState
     } = this.draw;
     const { email, display_name, avatar_URL } = this.loggedUser;
-    clear();
-    addBanner({
-      src: this.bannerUrl,
-    });
-    addUserProfileDisplay({
-      imageSrc: avatar_URL,
-      userTitle: display_name,
-      userEmail: email,
-    });
-    addButton({
-      label: "Switch Account",
-      clickEvent: "addAccountHandler",
-    });
-    addHorizontalDivider();
-    addLabel({
-      text: "Article Post Creation",
-      styles: {
-        fontWeight: 'bold',
-        textAlign: 'center',
+    const selectedSite = this.userSites.filter(site => site.ID === this.siteId)[0];
+    this.core.getArticle({ type: "html" }).then(html => {
+      let parser = new DOMParser();
+      let htmlDoc = parser.parseFromString(html, 'text/xml');
+      let title = htmlDoc.title;
+      let imgElements = htmlDoc.getElementsByTagName('img');
+      if (!title) {
+        this.core.notify({
+          title: "Wordpress.Com",
+          message: "Article title is required!",
+          status: "warn",
+        });
+        return;
       }
-    });
-    addEmptyState({
-      text: 'Loading...'
-    });
-    addButton({
-      label: "Cancel",
-      styles: {
-        backgroundColor: '#666',
-        borderColor: '#666',
-        color: '#fff',
-        display: 'inline',
-        marginRight: '2%',
-        width: '48%',
-      },
-      clickEvent: "displayMainView",
-    });
-    addButton({
-      label: "Publish",
-      clickEvent: "publishArticle",
-      styles: {
-        marginLeft: '2%',
-        display: 'inline',
-        width: '48%',
-      }
+      clear();
+      addBanner({
+        src: this.bannerUrl,
+      });
+      addUserProfileDisplay({
+        imageSrc: avatar_URL,
+        userTitle: display_name,
+        userEmail: email,
+      });
+      addButton({
+        label: "Switch Account",
+        clickEvent: "addAccountHandler",
+      });
+      addHorizontalDivider();
+      addLabel({
+        text: "Article Post Creation",
+        styles: {
+          fontWeight: 'bold',
+          textAlign: 'center',
+        }
+      });
+      labeledValue({
+        label: 'Post Title:',
+        value: title || "Unknown"
+      });
+      labeledValue({
+        label: 'Media Count:',
+        value: imgElements.length,
+      });
+      labeledValue({
+        label: 'Site Title:',
+        value: selectedSite ? selectedSite.name : 'Unknown',
+        styles: {
+          marginTop: '10px',
+        }
+      });
+      labeledValue({
+        label: 'Site URL:',
+        value: selectedSite ? selectedSite.URL : 'Unknown',
+      });
+      addButton({
+        label: "Cancel",
+        styles: {
+          backgroundColor: '#666',
+          borderColor: '#666',
+          color: '#fff',
+          display: 'inline',
+          marginRight: '2%',
+          width: '48%',
+        },
+        clickEvent: "displayMainView",
+      });
+      addButton({
+        label: "Publish",
+        clickEvent: "publishArticle",
+        styles: {
+          marginLeft: '2%',
+          display: 'inline',
+          width: '48%',
+        }
+      });
     });
   }
 
@@ -324,7 +376,7 @@ class darwin {
     if (!this.waitingForLogin) return;
     this.waitingForLogin = false;
     setLoading({ status: true });
-    this.request(`http://192.168.100.50:3001/api/wordpress/token?code=${code}`, null, 'GET').then(res => {
+    this.request(`${this.apiUrl}/token?code=${code}&redirect_uri=http://127.0.0.1:${this.redirectCode}`, null, 'GET').then(res => {
       if (res.data) {
         this.accessToken = res.data.access_token;
         this.core.setLocalStore({
@@ -340,9 +392,9 @@ class darwin {
 
   addAccountHandler() {
     clearTimeout(this.timer);
-    console.warn("Wordpress.Com waiting for sign in!!");
+    console.log("Wordpress.Com waiting for sign in!!");
     this.core.openBrowserUrl({
-      url: `${this.api}/wordpress/auth?state=${this.id}&redirectUri=http://127.0.0.1:${this.redirectCode}`,
+      url: `${this.apiUrl}/auth?state='${this.id}'&redirectUri=http://127.0.0.1:${this.redirectCode}`,
     });
     this.waitingForLogin = true;
     this.timer = setTimeout(() => {
@@ -364,9 +416,6 @@ class darwin {
   }
 
   async request(url = '', data = {}, type = "GET", content = 'application/json') {
-    console.log(data);
-    console.log(type);
-    console.log(content);
     let body = null;
     if (type !== 'GET') body = JSON.stringify(data);
     const response = await fetch(url, {
