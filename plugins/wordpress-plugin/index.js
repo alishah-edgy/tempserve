@@ -30,6 +30,9 @@ class darwin {
         name: "wpkey",
         placeholder: "wordpress key",
         defaultValue: formData ? formData["wpkey"] : undefined,
+        styles: {
+          width: "91%"
+        },
         type: "input",
       });
 
