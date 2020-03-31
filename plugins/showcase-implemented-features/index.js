@@ -13,7 +13,7 @@ class DemoPlugin {
     //This function will be called ones the plugin is integrated and ready!
     const
       {
-        addBanner, addButton, addFormElement, addEmptyState, addHorizontalDivider, addLabel, setLoading
+        banner, button, formElement, emptyState, horizontalDivider, label, setLoading
       } = this.draw,
       {
         getLocalStore,
@@ -21,30 +21,31 @@ class DemoPlugin {
 
     getLocalStore().then(data => {
       //creating the MyPlugin banner
-      addBanner({
+      banner({
         src: "https://www.logolynx.com/images/logolynx/05/058631e9fb045407a6b9f04dc3891e94.jpeg",
       });
 
-      addFormElement({
+      formElement({
         type: "input",
         name: 'Demo Input',
+        styles: { width: "92%" },
         defaultValue: data ? data.inputData : undefined,
       });
-      addFormElement({
+      formElement({
         type: "btn",
         name: 'Copy to clipboard',
       });
-      addLabel({
+      label({
         text: "Data will be saved in local store too, with this plugin's unique Id",
       });
-      addHorizontalDivider();
+      horizontalDivider();
 
       //showing empty state
-      addEmptyState({
+      emptyState({
         text: "No Data Available!",
       });
 
-      addButton({
+      button({
         label: "Switch Theme",
         clickEvent: 'switchTheme',
         styles: {

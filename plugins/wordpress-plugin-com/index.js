@@ -8,6 +8,7 @@ class Wordpress_Com {
     this.core = core;
     // this.apiUrl = 'http://192.168.100.50:3001/api/wordpress';
     this.apiUrl = 'https://ink-api-test.seo.app/api/wordpress';
+    // this.apiUrl = 'https://91d99ed6.ngrok.io/api/wordpress';
     this.redirectCode = 3047;
     this.bannerUrl = "./public/img/logo-wpcom.png";
     this.siteId = null;
@@ -37,11 +38,12 @@ class Wordpress_Com {
 
   init() {
     console.log("Wordpress.Com Plugin");
-    const { addBanner, addButton, clear } = this.draw;
+    const { banner, button, clear } = this.draw;
     clear();
-    addBanner({
+    banner({
       src: this.bannerUrl,
     });
+
     this.core.getLocalStore().then(data => {
       if (data && data.accounts) {
         if (data.accounts.length > 0) data.accounts.find(acc => {
@@ -54,18 +56,18 @@ class Wordpress_Com {
         })
       }
     });
-    addButton({
+    button({
       label: "Add Account",
       clickEvent: "addAccountHandler"
     });
   }
 
   listSites = sites => {
-    const { addLabel, addExpandableList, clear } = this.draw;
+    const { label, expandableList, clear } = this.draw;
     clear({
       containerId: 'content',
     })
-    addLabel({
+    label({
       text: "Available Sites",
       styles: {
         fontWeight: 'bold',
@@ -74,7 +76,7 @@ class Wordpress_Com {
       containerId: 'content',
     });
     sites.forEach(({ URL, ID, name, post_count, launch_status }) => {
-      addExpandableList({
+      expandableList({
         title: URL,
         btn: 'Create Post',
         fields: [
@@ -142,7 +144,7 @@ class Wordpress_Com {
 
   loadUserData() {
     const {
-      addHorizontalDivider, customContainer, addUserProfileDisplay, clear, addBanner, addButton, addEmptyState
+      horizontalDivider, customContainer, userProfileDisplay, clear, banner, button, emptyState
     } = this.draw;
     this.setLoader(true)
     this.request(`https://public-api.wordpress.com/rest/v1/me/`, null, 'GET').then((user) => {
@@ -150,19 +152,19 @@ class Wordpress_Com {
       const { email, display_name, avatar_URL } = user;
       this.userDataSave(user);
       clear();
-      addBanner({
+      banner({
         src: this.bannerUrl,
       });
-      addUserProfileDisplay({
+      userProfileDisplay({
         imageSrc: avatar_URL,
         userTitle: display_name,
         userEmail: email,
       });
-      addButton({
+      button({
         label: "Switch Account",
         clickEvent: "switchAccountHandler",
       });
-      addHorizontalDivider();
+      horizontalDivider();
       customContainer({
         containerId: 'content',
       })
@@ -182,7 +184,7 @@ class Wordpress_Com {
             this.listSites(res.sites);
             this.setLoader(false)
           } else {
-            addEmptyState({
+            emptyState({
               text: "No Sites Available",
               containerId: 'content',
             });
@@ -199,20 +201,20 @@ class Wordpress_Com {
   switchAccountHandler = () => {
     if (this.postCreationStage) return;
     const {
-      addLabel, addButton, addUserProfileDisplay, clear, addBanner
+      label, button, userProfileDisplay, clear, banner
     } = this.draw;
     const { getLocalStore } = this.core;
 
     clear();
-    addBanner({
+    banner({
       src: this.bannerUrl,
     });
-    addButton({
+    button({
       label: "Add Another Account",
       styles: { fontWeight: "normal" },
       clickEvent: "addAccountHandler"
     });
-    addLabel({
+    label({
       text: "Linked Accounts",
       styles: {
         fontWeight: 'bold',
@@ -226,7 +228,7 @@ class Wordpress_Com {
     getLocalStore().then(data => {
       if (!data) return;
       data.accounts.forEach(({ ID, email, display_name, avatar_URL, token }) => {
-        addUserProfileDisplay({
+        userProfileDisplay({
           imageSrc: avatar_URL,
           userTitle: display_name,
           userEmail: email,
@@ -249,11 +251,11 @@ class Wordpress_Com {
   }
 
   setLoadingText = text => {
-    const { clear, addLabel } = this.draw;
+    const { clear, label } = this.draw;
     clear({
       containerId: 'loadingState',
     })
-    addLabel({
+    label({
       text: text,
       containerId: 'loadingState',
     })
@@ -273,7 +275,7 @@ class Wordpress_Com {
       let files = [];
       let title = htmlDoc.title;
       let imgElements = htmlDoc.getElementsByTagName('img');
-      let promises = [];
+      let promise = null;
       if (title) {
         //removing first child that is "H1" node for title
         htmlDoc.body.firstElementChild.remove();
@@ -297,60 +299,72 @@ class Wordpress_Com {
 
           //uploading media and retrieving their urls
           this.setLoadingText("Uploading Media...");
-          promises.push(fetch(`${this.apiUrl}/upload-media`, {
-            method: 'POST',
-            body: formData,
-          }).then(res => res.json()).then(({ data }) => {
-            //parsing html and placing new image sources
-            for (let index = 0; index < imgElements.length; index++) {
-              const imgEle = imgElements[index];
-              imgEle.src = data.media[index].URL;
-            }
-            return;
-          }, err => {
-            this.setLoader(false)
-            this.core.notify({
-              title: "Wordpress.Com",
-              message: "Media Uploading Failed: " + err,
-              status: "error",
+          promise = this.request(`${this.apiUrl}/upload-media`, formData, 'POST', "multipart/form-data")
+            .then(({ data }) => {
+              //parsing html and placing new image sources
+              this.recentUploadedMedia = data.media;
+              for (let index = 0; index < imgElements.length; index++) {
+                const imgEle = imgElements[index];
+                imgEle.src = data.media[index].URL;
+              }
+              return;
+            }, err => {
+              this.postCreationStage = null;
+              this.setLoader(false)
+              this.core.notify({
+                title: "Wordpress.Com",
+                message: "Media Uploading Failed: " + err,
+                status: "error",
+              });
             });
-          }));
         }
 
         //create post api request
-        Promise.all(promises).then(() => {
+        if (promise) promise.then(() => {
           if (this.postCreationStage === 'media') {
             this.setLoadingText("Creating Post...");
             this.postCreationStage = 'post';
-            fetch(`${this.apiUrl}/create-post`, {
-              method: 'POST',
-              body: JSON.stringify({
+            this.request(
+              `${this.apiUrl}/create-post`,
+              {
                 title,
                 content: htmlDoc.body.innerHTML,
                 password: '',
                 siteId: this.siteId,
                 token,
                 status: data.status,
-              }),
-              headers: {
-                'Authorization': `Bearer ${this.accessToken}`,
-                'Content-Type': 'application/json',
               },
-            }).then(res => res.json()).then((res) => {
-              this.displayMainView();
-              this.core.notify({
-                title: "Wordpress.Com",
-                message: "Post Created Successfully!",
-                status: "success",
-                url: res.data.short_URL,
-                delay: 'sticky',
-              });
-            }, err => {
-              this.core.notify({
-                title: "Wordpress.Com",
-                message: "Post Creation Failed: " + err,
-                status: "error",
-              });
+              'POST'
+            ).then((res) => {
+              if (res.success) {
+                this.displayMainView();
+                this.core.notify({
+                  title: "Wordpress.Com",
+                  message: "Post Created Successfully!",
+                  status: "success",
+                  url: res.data.short_URL,
+                  delay: 'sticky',
+                });
+              } else {
+                console.log(this.recentUploadedMedia)
+                this.core.notify({
+                  title: "Wordpress.Com",
+                  message: "Post Creation Failed: " + res.message,
+                  status: "error",
+                });
+                //removing media from WP servers in-case of failure
+                this.recentUploadedMedia.forEach(({ ID }) => {
+                  this.request(
+                    `${this.apiUrl}/delete-media`,
+                    {
+                      siteId: this.siteId,
+                      token,
+                      mediaId: ID,
+                    },
+                    'POST'
+                  )
+                })
+              }
             }).finally(() => {
               clear({
                 containerId: 'loadingState',
@@ -374,7 +388,7 @@ class Wordpress_Com {
 
   selectPostSite() {
     const {
-      addLabel, labeledValue, addFormElement, addHorizontalDivider, addUserProfileDisplay, clear, addBanner, addButton, addEmptyState
+      label, labeledValue, formElement, horizontalDivider, userProfileDisplay, clear, banner, button, emptyState
     } = this.draw;
     const { email, display_name, avatar_URL } = this.loggedUser;
     const selectedSite = this.userSites.filter(site => site.ID === this.siteId)[0];
@@ -394,7 +408,7 @@ class Wordpress_Com {
       clear({
         containerId: 'content',
       });
-      addLabel({
+      label({
         text: "Article Post Creation",
         containerId: 'content',
         styles: {
@@ -425,7 +439,7 @@ class Wordpress_Com {
         label: 'Site URL:',
         value: selectedSite ? selectedSite.URL : 'Unknown',
       });
-      addLabel({
+      label({
         text: "Post Status:",
         containerId: 'content',
         styles: {
@@ -433,7 +447,7 @@ class Wordpress_Com {
           fontSize: "13px",
         }
       });
-      addFormElement({  //status dropdown element
+      formElement({  //status dropdown element
         name: "status",
         containerId: 'content',
         type: "dropDown",
@@ -444,7 +458,7 @@ class Wordpress_Com {
           "pending",
         ],
       });
-      addButton({
+      button({
         containerId: 'content',
         label: "Cancel",
         styles: {
@@ -457,7 +471,7 @@ class Wordpress_Com {
         },
         clickEvent: "cancelPostHandler",
       });
-      addFormElement({  //creates a submit button
+      formElement({  //creates a submit button
         name: "Create",
         containerId: 'content',
         type: "btn",
@@ -472,7 +486,7 @@ class Wordpress_Com {
 
   cancelPostHandler = () => {
     if (this.postCreationStage !== 'post') {
-      const { clear, setLoading } = this.draw;
+      const { clear } = this.draw;
       this.postCreationStage = null;
       this.displayMainView();
       clear({
@@ -484,7 +498,7 @@ class Wordpress_Com {
 
   displayMainView() {
     const {
-      setLoading, clear, addEmptyState
+      setLoading, clear, emptyState
     } = this.draw;
     this.siteId = null;
     clear({
@@ -494,7 +508,7 @@ class Wordpress_Com {
       this.listSites(this.userSites);
       this.setLoader(false)
     } else {
-      addEmptyState({
+      emptyState({
         text: "No Sites Available",
         containerId: 'content',
       });
@@ -549,14 +563,14 @@ class Wordpress_Com {
   addAccountHandler() {
     clearTimeout(this.timer);
     console.log("Wordpress.Com waiting for sign in!!");
-    this.core.openBrowserUrl({
+    this.core.openUrl({
       url: `${this.apiUrl}/auth?state='${this.id}'&redirectUri=http://127.0.0.1:${this.redirectCode}`,
     });
     this.waitingForLogin = true;
     this.timer = setTimeout(() => {
       this.waitingForLogin = false;
       console.warn("Wordpress.Com Sign In Timeout!!");
-    }, 180000);
+    }, 300000);
   }
 
   urlToFileBlob(dataurl, filename) {
@@ -573,15 +587,18 @@ class Wordpress_Com {
 
   async request(url = '', data = {}, type = "GET", content = 'application/json') {
     let body = null;
-    if (type !== 'GET') body = JSON.stringify(data);
-    const response = await fetch(url, {
+    if (type !== 'GET') body = (content == "multipart/form-data") ? data : JSON.stringify(data);
+    let ops = {
       method: type,
       headers: {
         'Authorization': `Bearer ${this.accessToken}`,
         'Content-Type': content,
       },
       body
-    });
+    }
+    if (content == "multipart/form-data")
+      delete ops.headers["Content-Type"]
+    const response = await fetch(url, ops);
     return await response.json();
   }
 

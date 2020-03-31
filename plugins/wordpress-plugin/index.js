@@ -16,17 +16,17 @@ class darwin {
 
   init() {
 
-    const { addBanner, addFormElement, addLabel, addHorizontalDivider, addExpandableList } = this.draw;
+    const { banner, formElement, label, horizontalDivider, expandableList } = this.draw;
     const { getLocalStore } = this.core;
 
     console.log("Wordpress Plugin");
     getLocalStore().then(formData => {
 
-      addBanner({
+      banner({
         src: "https://www.colleaguesoftware.com/wp-content/uploads/2019/10/wordpress-logo.png",
       });
 
-      addFormElement({
+      formElement({
         name: "wpkey",
         placeholder: "wordpress key",
         defaultValue: formData ? formData["wpkey"] : undefined,
@@ -36,17 +36,17 @@ class darwin {
         type: "input",
       });
 
-      addFormElement({
+      formElement({
         name: "Add",
         type: "btn",
       });
 
-      addHorizontalDivider();
+      horizontalDivider();
 
       // addEmptyState({
       //   text: "No Configs Available",
       // });
-      addLabel({
+      label({
         text: "Save Configs",
         styles: {
           textAlign: 'center',
@@ -54,7 +54,7 @@ class darwin {
         },
       });
 
-      addExpandableList({
+      expandableList({
         title: "https://facebook.com",
         fields: [
           { label: "User:", value: "Jane Doe" },
@@ -62,7 +62,7 @@ class darwin {
         ],
         btn: "Publish Article",
       });
-      addExpandableList({
+      expandableList({
         title: "https://Google.com",
         fields: [
           { label: "User:", value: "Jane Doe" },
@@ -70,7 +70,7 @@ class darwin {
         ],
         btn: "Publish Article",
       });
-      addExpandableList({
+      expandableList({
         title: "https://yahoo.com/plug",
         fields: [
           { label: "User:", value: "Jane Doe" },
