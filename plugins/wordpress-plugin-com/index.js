@@ -57,7 +57,7 @@ class Wordpress_Com {
       }
     });
     button({
-      label: "Add Account",
+      text: "Add Account",
       clickEvent: "addAccountHandler"
     });
   }
@@ -161,7 +161,7 @@ class Wordpress_Com {
         userEmail: email,
       });
       button({
-        label: "Switch Account",
+        text: "Switch Account",
         clickEvent: "switchAccountHandler",
       });
       horizontalDivider();
@@ -210,7 +210,7 @@ class Wordpress_Com {
       src: this.bannerUrl,
     });
     button({
-      label: "Add Another Account",
+      text: "Add Another Account",
       styles: { fontWeight: "normal" },
       clickEvent: "addAccountHandler"
     });
@@ -264,7 +264,7 @@ class Wordpress_Com {
   //for publishing article
   submit(data) {
     if (this.postCreationStage) return;
-    const { setLoading, clear } = this.draw;
+    const { clear } = this.draw;
     this.setLoader(true)
     this.postCreationStage = 'media';
     let parser = new DOMParser();
@@ -312,15 +312,15 @@ class Wordpress_Com {
               this.postCreationStage = null;
               this.setLoader(false)
               this.core.notify({
-                title: "Wordpress.Com",
-                message: "Media Uploading Failed: " + err,
+                message: "Wordpress.Com",
+                title: "Media Uploading Failed: " + err,
                 status: "error",
               });
             });
         }
 
         //create post api request
-        if (promise) promise.then(() => {
+        Promise.all([promise]).then(() => {
           if (this.postCreationStage === 'media') {
             this.setLoadingText("Creating Post...");
             this.postCreationStage = 'post';
@@ -346,10 +346,9 @@ class Wordpress_Com {
                   delay: 'sticky',
                 });
               } else {
-                console.log(this.recentUploadedMedia)
                 this.core.notify({
-                  title: "Wordpress.Com",
-                  message: "Post Creation Failed: " + res.message,
+                  title: "Post Creation Failed: " + err,
+                  message: "Wordpress.Com",
                   status: "error",
                 });
                 //removing media from WP servers in-case of failure
@@ -378,8 +377,8 @@ class Wordpress_Com {
         this.setLoader(false)
         this.postCreationStage = null;
         this.core.notify({
-          title: "Wordpress.Com",
-          message: "Article title is required!",
+          message: "Wordpress.Com",
+          title: "Article title is required!",
           status: "warning",
         });
       }
@@ -399,8 +398,8 @@ class Wordpress_Com {
       let imgElements = htmlDoc.getElementsByTagName('img');
       if (!title) {
         this.core.notify({
-          title: "Wordpress.Com",
-          message: "Article title is required!",
+          title: "Article title is required!",
+          message: "Wordpress.Com",
           status: "warning",
         });
         return;
@@ -460,7 +459,7 @@ class Wordpress_Com {
       });
       button({
         containerId: 'content',
-        label: "Cancel",
+        text: "Cancel",
         styles: {
           backgroundColor: '#666',
           borderColor: '#666',
