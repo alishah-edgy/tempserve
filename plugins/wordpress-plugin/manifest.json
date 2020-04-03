@@ -1,6 +1,6 @@
 {
-  "id": "wordpress-plugin",
-  "name": "Wordpress",
+  "id": "wordpress-plugin-org",
+  "name": "Wordpress.Org",
   "thumbnail": "thumbnail.png",
   "version": "0.0.1",
   "main": "index.js"

@@ -63,7 +63,7 @@ class Wordpress_Com {
   }
 
   listSites = sites => {
-    const { label, expandableList, clear } = this.draw;
+    const { label, expandContainer, labeledValue, button, clear } = this.draw;
     clear({
       containerId: 'content',
     })
@@ -75,18 +75,28 @@ class Wordpress_Com {
       },
       containerId: 'content',
     });
+    let tempArr = [];
     sites.forEach(({ URL, ID, name, post_count, launch_status }) => {
-      expandableList({
+      expandContainer({
         title: URL,
-        btn: 'Create Post',
-        fields: [
-          { label: "Site Title:", value: name },
-          { label: "Post Count:", value: post_count },
-          { label: "Launch Status:", value: launch_status },
-        ],
+        contentContainerId: ID,
         containerId: 'content',
-        clickEvent: ID,
         group: 'grouped-sites',
+      })
+      tempArr = [
+        { label: "Site Title:", value: name },
+        { label: "Post Count:", value: post_count },
+        { label: "Launch Status:", value: launch_status },
+      ];
+      tempArr.forEach(({ label, value }) => labeledValue({ label, value, containerId: ID }))
+      button({
+        text: "Create Post",
+        clickEvent: ID,
+        containerId: ID,
+        styles: {
+          height: "25px",
+          lineHeight: '21px',
+        }
       });
       this[ID] = () => {
         this.siteId = ID;
@@ -312,8 +322,8 @@ class Wordpress_Com {
               this.postCreationStage = null;
               this.setLoader(false)
               this.core.notify({
-                message: "Wordpress.Com",
-                title: "Media Uploading Failed: " + err,
+                title: "Wordpress.Com",
+                message: "Media Uploading Failed: " + err,
                 status: "error",
               });
             });
@@ -346,9 +356,10 @@ class Wordpress_Com {
                   delay: 'sticky',
                 });
               } else {
+                console.log(this.recentUploadedMedia)
                 this.core.notify({
-                  title: "Post Creation Failed: " + err,
-                  message: "Wordpress.Com",
+                  title: "Wordpress.Com",
+                  message: "Post Creation Failed: " + res.message,
                   status: "error",
                 });
                 //removing media from WP servers in-case of failure
@@ -377,8 +388,8 @@ class Wordpress_Com {
         this.setLoader(false)
         this.postCreationStage = null;
         this.core.notify({
-          message: "Wordpress.Com",
-          title: "Article title is required!",
+          title: "Wordpress.Com",
+          message: "Article title is required!",
           status: "warning",
         });
       }
@@ -398,8 +409,8 @@ class Wordpress_Com {
       let imgElements = htmlDoc.getElementsByTagName('img');
       if (!title) {
         this.core.notify({
-          title: "Article title is required!",
-          message: "Wordpress.Com",
+          title: "Wordpress.Com",
+          message: "Article title is required!",
           status: "warning",
         });
         return;
