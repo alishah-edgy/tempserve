@@ -1,13 +1,11 @@
 class Wordpress_Com {
-
   constructor({ core, draw, id }) {
-
     //variables
     this.id = id;
     this.draw = draw;
     this.core = core;
     // this.apiUrl = 'http://192.168.100.50:3001/api/wordpress';
-    this.apiUrl = 'https://ink-api-test.seo.app/api/wordpress';
+    this.apiUrl = "https://ink-api-test.seo.app/api/wordpress";
     // this.apiUrl = 'https://91d99ed6.ngrok.io/api/wordpress';
     this.redirectCode = 3047;
     this.bannerUrl = "./public/img/logo-wpcom.png";
@@ -31,7 +29,7 @@ class Wordpress_Com {
     this.loadUserData = this.loadUserData.bind(this);
 
     //publishing article
-    this.submit = this.submit.bind(this);
+    this.publishArticle = this.publishArticle.bind(this);
     this.selectPostSite = this.selectPostSite.bind(this);
     this.displayMainView = this.displayMainView.bind(this);
   }
@@ -44,102 +42,105 @@ class Wordpress_Com {
       src: this.bannerUrl,
     });
 
-    this.core.getLocalStore().then(data => {
+    this.core.getLocalStore().then((data) => {
       if (data && data.accounts) {
-        if (data.accounts.length > 0) data.accounts.find(acc => {
-          if (acc.ID === data.activeAccountId) {
-            this.accessToken = acc.token;
-            this.loadUserData();
-            return true;
-          }
-          return false;
-        })
+        if (data.accounts.length > 0)
+          data.accounts.find((acc) => {
+            if (acc.ID === data.activeAccountId) {
+              this.accessToken = acc.token;
+              this.loadUserData();
+              return true;
+            }
+            return false;
+          });
       }
     });
     button({
       text: "Add Account",
-      clickEvent: "addAccountHandler"
+      clickEvent: "addAccountHandler",
     });
   }
 
-  listSites = sites => {
+  listSites = (sites) => {
     const { label, expandContainer, labeledValue, button, clear } = this.draw;
     clear({
-      containerId: 'content',
-    })
+      containerId: "content",
+    });
     label({
       text: "Available Sites",
       styles: {
-        fontWeight: 'bold',
-        textAlign: 'center',
+        fontWeight: "bold",
+        textAlign: "center",
       },
-      containerId: 'content',
+      containerId: "content",
     });
     let tempArr = [];
     sites.forEach(({ URL, ID, name, post_count, launch_status }) => {
       expandContainer({
         title: URL,
         contentContainerId: ID,
-        containerId: 'content',
-        group: 'grouped-sites',
-      })
+        containerId: "content",
+        group: "grouped-sites",
+      });
       tempArr = [
         { label: "Site Title:", value: name },
         { label: "Post Count:", value: post_count },
         { label: "Launch Status:", value: launch_status },
       ];
-      tempArr.forEach(({ label, value }) => labeledValue({ label, value, containerId: ID }))
+      tempArr.forEach(({ label, value }) =>
+        labeledValue({ label, value, containerId: ID })
+      );
       button({
         text: "Create Post",
         clickEvent: ID,
         containerId: ID,
         styles: {
           height: "25px",
-          lineHeight: '21px',
-        }
+          lineHeight: "21px",
+        },
       });
       this[ID] = () => {
         this.siteId = ID;
         this.selectPostSite(this.siteId);
       };
     });
-  }
+  };
 
-  setLoader = status => {
+  setLoader = (status) => {
     this.loading = status;
     this.draw.setLoading({ status });
-  }
+  };
 
   userDataSave = ({ ID, email, display_name, avatar_URL }) => {
     const { getLocalStore, setLocalStore } = this.core;
-    getLocalStore().then(data => {
+    getLocalStore().then((data) => {
       if (!data) data = { accounts: [] };
       if (!data.accounts) data.accounts = [];
-      data.accounts = data.accounts.filter(acc => acc.ID !== ID);
+      data.accounts = data.accounts.filter((acc) => acc.ID !== ID);
       data.accounts.push({
         ID,
         email,
         display_name,
         avatar_URL,
         token: this.accessToken,
-      })
+      });
       data.activeAccountId = ID;
       setLocalStore(data);
-    })
-  }
+    });
+  };
 
-  setActiveAccountID = id => {
+  setActiveAccountID = (id) => {
     const { getLocalStore, setLocalStore } = this.core;
-    getLocalStore().then(data => {
+    getLocalStore().then((data) => {
       data.activeAccountId = id;
       setLocalStore(data);
-    })
-  }
+    });
+  };
 
   removeUserAcc = (id) => {
     const { setLocalStore, getLocalStore } = this.core;
-    getLocalStore().then(data => {
-      data.accounts = data.accounts.filter(acc => acc.ID !== id);
+    getLocalStore().then((data) => {
+      data.accounts = data.accounts.filter((acc) => acc.ID !== id);
       if (data.accounts.length > 0) {
         data.activeAccountId = data.accounts[0].ID;
         this.accessToken = data.accounts[0].token;
@@ -149,70 +150,87 @@ class Wordpress_Com {
         this.accessToken = null;
         setLocalStore(data).then(this.init());
       }
-    })
-  }
+    });
+  };
 
   loadUserData() {
     const {
-      horizontalDivider, customContainer, userProfileDisplay, clear, banner, button, emptyState
+      horizontalDivider,
+      customContainer,
+      userProfileDisplay,
+      clear,
+      banner,
+      button,
+      emptyState,
     } = this.draw;
-    this.setLoader(true)
-    this.request(`https://public-api.wordpress.com/rest/v1/me/`, null, 'GET').then((user) => {
-      this.loggedUser = user;
-      const { email, display_name, avatar_URL } = user;
-      this.userDataSave(user);
-      clear();
-      banner({
-        src: this.bannerUrl,
-      });
-      userProfileDisplay({
-        imageSrc: avatar_URL,
-        userTitle: display_name,
-        userEmail: email,
-      });
-      button({
-        text: "Switch Account",
-        clickEvent: "switchAccountHandler",
-      });
-      horizontalDivider();
-      customContainer({
-        containerId: 'content',
-      })
-      customContainer({
-        containerId: 'loadingState',
-        styles: {
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: '10px',
-          color: '#50bbf1',
-        }
-      })
-      this.request(`https://public-api.wordpress.com/rest/v1.1/me/sites`, null, 'GET')
-        .then((res) => {
-          this.userSites = res.sites;
-          if (res.sites.length > 0) {
-            this.listSites(res.sites);
-            this.setLoader(false)
-          } else {
-            emptyState({
-              text: "No Sites Available",
-              containerId: 'content',
-            });
-            this.setLoader(false)
-          }
-        }, err => {
-          console.warn(err);
+    this.setLoader(true);
+    this.request(
+      `https://public-api.wordpress.com/rest/v1/me/`,
+      null,
+      "GET"
+    ).then(
+      (user) => {
+        this.loggedUser = user;
+        const { email, display_name, avatar_URL } = user;
+        this.userDataSave(user);
+        clear();
+        banner({
+          src: this.bannerUrl,
         });
-    }, err => {
-      console.warn(err);
-    });
+        userProfileDisplay({
+          imageSrc: avatar_URL,
+          userTitle: display_name,
+          userEmail: email,
+        });
+        button({
+          text: "Switch Account",
+          clickEvent: "switchAccountHandler",
+        });
+        horizontalDivider();
+        customContainer({
+          containerId: "content",
+        });
+        customContainer({
+          containerId: "loadingState",
+          styles: {
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "10px",
+            color: "#50bbf1",
+          },
+        });
+        this.request(
+          `https://public-api.wordpress.com/rest/v1.1/me/sites`,
+          null,
+          "GET"
+        ).then(
+          (res) => {
+            this.userSites = res.sites;
+            if (res.sites.length > 0) {
+              this.listSites(res.sites);
+              this.setLoader(false);
+            } else {
+              emptyState({
+                text: "No Sites Available",
+                containerId: "content",
+              });
+              this.setLoader(false);
+            }
+          },
+          (err) => {
+            console.warn(err);
+          }
+        );
+      },
+      (err) => {
+        console.warn(err);
+      }
+    );
   }
 
   switchAccountHandler = () => {
     if (this.postCreationStage) return;
-    const {
-      label, button, userProfileDisplay, clear, banner
-    } = this.draw;
+    const { label, button, userProfileDisplay, clear, banner } = this.draw;
     const { getLocalStore } = this.core;
 
     clear();
@@ -222,69 +240,70 @@ class Wordpress_Com {
     button({
       text: "Add Another Account",
       styles: { fontWeight: "normal" },
-      clickEvent: "addAccountHandler"
+      clickEvent: "addAccountHandler",
     });
     label({
       text: "Linked Accounts",
       styles: {
-        fontWeight: 'bold',
-        textAlign: 'center',
-        fontSize: '13px',
-        margin: '15px 0',
-        borderBottom: '1px solid',
+        fontWeight: "bold",
+        textAlign: "center",
+        fontSize: "13px",
+        margin: "15px 0",
+        borderBottom: "1px solid",
       },
     });
 
-    getLocalStore().then(data => {
+    getLocalStore().then((data) => {
       if (!data) return;
-      data.accounts.forEach(({ ID, email, display_name, avatar_URL, token }) => {
-        userProfileDisplay({
-          imageSrc: avatar_URL,
-          userTitle: display_name,
-          userEmail: email,
-          clickEvent: `selectAccount-${ID}`,
-          closable: true,
-        });
-        this[`selectAccount-${ID}`] = ({ name }) => {
-          if (this.loading) return;
-          if (name == 'content') {
-            this.accessToken = token;
-            this.setActiveAccountID(ID);
-            this.loadUserData(true);
-          } else if (name == 'close') {
-            this.removeUserAcc(ID)
-          }
+      data.accounts.forEach(
+        ({ ID, email, display_name, avatar_URL, token }) => {
+          userProfileDisplay({
+            imageSrc: avatar_URL,
+            userTitle: display_name,
+            userEmail: email,
+            clickEvent: `selectAccount-${ID}`,
+            closable: true,
+          });
+          this[`selectAccount-${ID}`] = ({ name }) => {
+            if (this.loading) return;
+            if (name == "content") {
+              this.accessToken = token;
+              this.setActiveAccountID(ID);
+              this.loadUserData(true);
+            } else if (name == "close") {
+              this.removeUserAcc(ID);
+            }
+          };
         }
-      })
-    })
+      );
+    });
+  };
 
-  }
-
-  setLoadingText = text => {
+  setLoadingText = (text) => {
     const { clear, label } = this.draw;
     clear({
-      containerId: 'loadingState',
-    })
+      containerId: "loadingState",
+    });
     label({
       text: text,
-      containerId: 'loadingState',
-    })
-  }
+      containerId: "loadingState",
+    });
+  };
 
   //for publishing article
-  submit(data) {
+  publishArticle() {
     if (this.postCreationStage) return;
     const { clear } = this.draw;
-    this.setLoader(true)
-    this.postCreationStage = 'media';
+    this.setLoader(true);
+    this.postCreationStage = "media";
     let parser = new DOMParser();
-    this.core.getArticle({ type: "html" }).then(html => {
-      let htmlDoc = parser.parseFromString(html, 'text/xml');
+    this.core.getArticle({ type: "html" }).then((html) => {
+      let htmlDoc = parser.parseFromString(html, "text/xml");
       let imgSrc = [];
       let token = `Bearer ${this.accessToken}`;
       let files = [];
       let title = htmlDoc.title;
-      let imgElements = htmlDoc.getElementsByTagName('img');
+      let imgElements = htmlDoc.getElementsByTagName("img");
       let promise = null;
       if (title) {
         //removing first child that is "H1" node for title
@@ -294,23 +313,30 @@ class Wordpress_Com {
             const imgEle = imgElements[index];
             let imgWidth = imgEle.style.width;
             let imgSource = imgEle.src;
-            imgEle.width = imgWidth ? imgWidth.slice(0, imgWidth.length - 2) : 0; //fixing image width issue
+            imgEle.width = imgWidth
+              ? imgWidth.slice(0, imgWidth.length - 2)
+              : 0; //fixing image width issue
             imgSrc.push(imgSource); //collecting all the image sources
-            files.push(this.urlToFileBlob(imgSource, `wp-upload-${index}`));  //collecting all the file blobs
+            files.push(this.urlToFileBlob(imgSource, `wp-upload-${index}`)); //collecting all the file blobs
           }
 
           //creating formdata for multipart api request
           const formData = new FormData();
-          formData.append('siteId', this.siteId);
-          formData.append('token', token);
+          formData.append("siteId", this.siteId);
+          formData.append("token", token);
           files.forEach((file, i) => {
             formData.append(`media`, file, `wp-test-${i}`);
           });
 
           //uploading media and retrieving their urls
           this.setLoadingText("Uploading Media...");
-          promise = this.request(`${this.apiUrl}/upload-media`, formData, 'POST', "multipart/form-data")
-            .then(({ data }) => {
+          promise = this.request(
+            `${this.apiUrl}/upload-media`,
+            formData,
+            "POST",
+            "multipart/form-data"
+          ).then(
+            ({ data }) => {
               //parsing html and placing new image sources
               this.recentUploadedMedia = data.media;
               for (let index = 0; index < imgElements.length; index++) {
@@ -318,74 +344,80 @@ class Wordpress_Com {
                 imgEle.src = data.media[index].URL;
               }
               return;
-            }, err => {
+            },
+            (err) => {
               this.postCreationStage = null;
-              this.setLoader(false)
+              this.setLoader(false);
               this.core.notify({
                 title: "Wordpress.Com",
                 message: "Media Uploading Failed: " + err,
                 status: "error",
               });
-            });
+            }
+          );
         }
 
         //create post api request
         Promise.all([promise]).then(() => {
-          if (this.postCreationStage === 'media') {
+          if (this.postCreationStage === "media") {
             this.setLoadingText("Creating Post...");
-            this.postCreationStage = 'post';
-            this.request(
-              `${this.apiUrl}/create-post`,
-              {
-                title,
-                content: htmlDoc.body.innerHTML,
-                password: '',
-                siteId: this.siteId,
-                token,
-                status: data.status,
-              },
-              'POST'
-            ).then((res) => {
-              if (res.success) {
-                this.displayMainView();
-                this.core.notify({
-                  title: "Wordpress.Com",
-                  message: "Post Created Successfully!",
-                  status: "success",
-                  url: res.data.short_URL,
-                  delay: 'sticky',
-                });
-              } else {
-                console.log(this.recentUploadedMedia)
-                this.core.notify({
-                  title: "Wordpress.Com",
-                  message: "Post Creation Failed: " + res.message,
-                  status: "error",
-                });
-                //removing media from WP servers in-case of failure
-                this.recentUploadedMedia.forEach(({ ID }) => {
-                  this.request(
-                    `${this.apiUrl}/delete-media`,
-                    {
-                      siteId: this.siteId,
-                      token,
-                      mediaId: ID,
-                    },
-                    'POST'
-                  )
+            this.postCreationStage = "post";
+            this.core.getFormData().then((data) => {
+              this.request(
+                `${this.apiUrl}/create-post`,
+                {
+                  title,
+                  content: htmlDoc.body.innerHTML,
+                  password: "",
+                  siteId: this.siteId,
+                  token,
+                  status: data.status,
+                },
+                "POST"
+              )
+                .then((res) => {
+                  if (res.success) {
+                    this.displayMainView();
+                    this.core.notify({
+                      title: "Wordpress.Com",
+                      message: "Post Created Successfully!",
+                      status: "success",
+                      url: res.data.short_URL,
+                      delay: "sticky",
+                    });
+                  } else {
+                    console.log(this.recentUploadedMedia);
+                    this.core.notify({
+                      title: "Wordpress.Com",
+                      message: "Post Creation Failed: " + res.message,
+                      status: "error",
+                    });
+                    //removing media from WP servers in-case of failure
+                    this.recentUploadedMedia.forEach(({ ID }) => {
+                      this.request(
+                        `${this.apiUrl}/delete-media`,
+                        {
+                          siteId: this.siteId,
+                          token,
+                          mediaId: ID,
+                        },
+                        "POST"
+                      );
+                    });
+                  }
                 })
-              }
-            }).finally(() => {
-              clear({
-                containerId: 'loadingState',
-              });
-              this.setLoader(false)
-              this.postCreationStage = null;
+                .finally(() => {
+                  clear({
+                    containerId: "loadingState",
+                  });
+                  this.setLoader(false);
+                  this.postCreationStage = null;
+                });
             });
           }
         });
       } else {
-        this.setLoader(false)
+        this.setLoader(false);
         this.postCreationStage = null;
         this.core.notify({
           title: "Wordpress.Com",
@@ -397,16 +429,15 @@ class Wordpress_Com {
   }
 
   selectPostSite() {
-    const {
-      label, labeledValue, formElement, horizontalDivider, userProfileDisplay, clear, banner, button, emptyState
-    } = this.draw;
-    const { email, display_name, avatar_URL } = this.loggedUser;
-    const selectedSite = this.userSites.filter(site => site.ID === this.siteId)[0];
-    this.core.getArticle({ type: "html" }).then(html => {
+    const { label, labeledValue, formElement, clear, button } = this.draw;
+    const selectedSite = this.userSites.filter(
+      (site) => site.ID === this.siteId
+    )[0];
+    this.core.getArticle({ type: "html" }).then((html) => {
       let parser = new DOMParser();
-      let htmlDoc = parser.parseFromString(html, 'text/xml');
+      let htmlDoc = parser.parseFromString(html, "text/xml");
       let title = htmlDoc.title;
-      let imgElements = htmlDoc.getElementsByTagName('img');
+      let imgElements = htmlDoc.getElementsByTagName("img");
       if (!title) {
         this.core.notify({
           title: "Wordpress.Com",
@@ -416,113 +447,107 @@ class Wordpress_Com {
         return;
       }
       clear({
-        containerId: 'content',
+        containerId: "content",
       });
       label({
         text: "Article Post Creation",
-        containerId: 'content',
+        containerId: "content",
         styles: {
-          fontWeight: 'bold',
-          textAlign: 'center',
-        }
+          fontWeight: "bold",
+          textAlign: "center",
+        },
       });
       labeledValue({
-        containerId: 'content',
-        label: 'Post Title:',
-        value: title || "Unknown"
+        containerId: "content",
+        label: "Post Title:",
+        value: title || "Unknown",
       });
       labeledValue({
-        containerId: 'content',
-        label: 'Media Count:',
+        containerId: "content",
+        label: "Media Count:",
         value: imgElements.length,
       });
       labeledValue({
-        containerId: 'content',
-        label: 'Site Title:',
-        value: selectedSite ? selectedSite.name : 'Unknown',
+        containerId: "content",
+        label: "Site Title:",
+        value: selectedSite ? selectedSite.name : "Unknown",
         styles: {
-          marginTop: '10px',
-        }
+          marginTop: "10px",
+        },
       });
       labeledValue({
-        containerId: 'content',
-        label: 'Site URL:',
-        value: selectedSite ? selectedSite.URL : 'Unknown',
+        containerId: "content",
+        label: "Site URL:",
+        value: selectedSite ? selectedSite.URL : "Unknown",
       });
       label({
         text: "Post Status:",
-        containerId: 'content',
+        containerId: "content",
         styles: {
-          fontWeight: 'bold',
+          fontWeight: "bold",
           fontSize: "13px",
-        }
+        },
       });
-      formElement({  //status dropdown element
+      formElement({
+        //status dropdown element
         name: "status",
-        containerId: 'content',
+        containerId: "content",
         type: "dropDown",
-        options: [
-          "publish",
-          "private",
-          "draft",
-          "pending",
-        ],
+        options: ["publish", "private", "draft", "pending"],
       });
       button({
-        containerId: 'content',
+        containerId: "content",
         text: "Cancel",
         styles: {
-          backgroundColor: '#666',
-          borderColor: '#666',
-          color: '#fff',
-          display: 'inline',
-          marginRight: '2%',
-          width: '48%',
+          backgroundColor: "#666",
+          borderColor: "#666",
+          color: "#fff",
+          display: "inline",
+          marginRight: "2%",
+          width: "48%",
         },
         clickEvent: "cancelPostHandler",
       });
-      formElement({  //creates a submit button
-        name: "Create",
-        containerId: 'content',
-        type: "btn",
+      button({
+        containerId: "content",
+        text: "Create",
         styles: {
-          marginLeft: '2%',
-          display: 'inline',
-          width: '48%',
-        }
+          marginLeft: "2%",
+          display: "inline",
+          width: "48%",
+        },
+        clickEvent: "publishArticle",
       });
     });
   }
 
   cancelPostHandler = () => {
-    if (this.postCreationStage !== 'post') {
+    if (this.postCreationStage !== "post") {
       const { clear } = this.draw;
       this.postCreationStage = null;
       this.displayMainView();
       clear({
-        containerId: 'loadingState',
+        containerId: "loadingState",
       });
-      this.setLoader(false)
+      this.setLoader(false);
     }
-  }
+  };
 
   displayMainView() {
-    const {
-      setLoading, clear, emptyState
-    } = this.draw;
+    const { setLoading, clear, emptyState } = this.draw;
     this.siteId = null;
     clear({
-      containerId: 'content',
+      containerId: "content",
     });
     if (this.userSites.length > 0) {
       this.listSites(this.userSites);
-      this.setLoader(false)
+      this.setLoader(false);
     } else {
       emptyState({
         text: "No Sites Available",
-        containerId: 'content',
+        containerId: "content",
       });
-      this.setLoader(false)
+      this.setLoader(false);
     }
   }
 
@@ -530,9 +555,15 @@ class Wordpress_Com {
     const imagesData = [];
     let isImageStarted = false;
     let isBase64Started = false;
-    let imgData = '';
+    let imgData = "";
     for (let i = 0; i < articleData.length; i++) {
-      if (i + 4 < articleData.length && articleData[i] === '<' && articleData[i + 1] === 'i' && articleData[i + 2] === 'm' && articleData[i + 3] === 'g') {
+      if (
+        i + 4 < articleData.length &&
+        articleData[i] === "<" &&
+        articleData[i + 1] === "i" &&
+        articleData[i + 2] === "m" &&
+        articleData[i + 3] === "g"
+      ) {
         isImageStarted = true;
       }
       if (isBase64Started) {
@@ -546,7 +577,7 @@ class Wordpress_Com {
           isImageStarted = false;
           imgData = imgData.slice(0, imgData.length - 1);
           imagesData.push(imgData);
-          imgData = '';
+          imgData = "";
         }
       }
     }
@@ -558,16 +589,23 @@ class Wordpress_Com {
     clearTimeout(this.timer);
     if (!this.waitingForLogin) return;
     this.waitingForLogin = false;
-    this.setLoader(true)
-    this.request(`${this.apiUrl}/token?code=${code}&redirect_uri=http://127.0.0.1:${this.redirectCode}`, null, 'GET').then(res => {
-      if (res.data) {
-        this.accessToken = res.data.access_token;
-        this.loadUserData();
+    this.setLoader(true);
+    this.request(
+      `${this.apiUrl}/token?code=${code}&redirect_uri=http://127.0.0.1:${this.redirectCode}`,
+      null,
+      "GET"
+    ).then(
+      (res) => {
+        if (res.data) {
+          this.accessToken = res.data.access_token;
+          this.loadUserData();
+        }
+      },
+      (err) => {
+        this.setLoader(false);
+        console.log(err);
       }
-    }, err => {
-      this.setLoader(false)
-      console.log(err);
-    });
+    );
   }
 
   addAccountHandler() {
@@ -584,7 +622,7 @@ class Wordpress_Com {
   }
 
   urlToFileBlob(dataurl, filename) {
-    var arr = dataurl.split(','),
+    var arr = dataurl.split(","),
       mime = arr[0].match(/:(.*?);/)[1],
       bstr = atob(arr[1]),
       n = bstr.length,
@@ -595,23 +633,27 @@ class Wordpress_Com {
     return new File([u8arr], filename, { type: mime });
   }
 
-  async request(url = '', data = {}, type = "GET", content = 'application/json') {
+  async request(
+    url = "",
+    data = {},
+    type = "GET",
+    content = "application/json"
+  ) {
     let body = null;
-    if (type !== 'GET') body = (content == "multipart/form-data") ? data : JSON.stringify(data);
+    if (type !== "GET")
+      body = content == "multipart/form-data" ? data : JSON.stringify(data);
     let ops = {
       method: type,
       headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Content-Type': content,
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": content,
       },
-      body
-    }
-    if (content == "multipart/form-data")
-      delete ops.headers["Content-Type"]
+      body,
+    };
+    if (content == "multipart/form-data") delete ops.headers["Content-Type"];
     const response = await fetch(url, ops);
     return await response.json();
   }
-
 }
 
 module.exports = Wordpress_Com;
